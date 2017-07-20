@@ -4,7 +4,7 @@
 static void test_cell_alloc();
 static void test_cell_link();
 static void test_cell_traverse();
-static void test_free_tape();
+static void test_tape_free();
 
 struct unit_test tests[] = {
 	{.msg = "should allocate cells",
@@ -14,7 +14,7 @@ struct unit_test tests[] = {
 	{.msg = "should traverse cells",
 	 .fun = unit_list(test_cell_traverse),},
 	{.msg = "should be able to free tapes",
-	 .fun = unit_list(test_free_tape),},
+	 .fun = unit_list(test_tape_free),},
 };
 
 #define make_tape(...) _make_tape((cell **[]){__VA_ARGS__, 0});
@@ -83,7 +83,7 @@ test_cell_traverse()
 }
 
 void
-test_free_tape()
+test_tape_free()
 {
 	cell *a, *b, *c;
 
