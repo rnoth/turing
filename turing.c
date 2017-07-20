@@ -99,22 +99,25 @@ link_cells(cell *lef, cell *rit)
 cell *
 tape_from_buffer(char *buffer, size_t length)
 {
+	cell *tape_head=0;
 	cell *new_cell;
-	cell *tape_tail;
 	size_t i;
 	int b;
 
-	for (i=0; i/8<length; i+=8) {
+	for (i=0; i/8<length; ++i) {
 		b = bit_at_index(buffer[i/8], i%8);
 		new_cell = cell_from_bit(b);
 		if (!new_cell) goto fail;
 
-		link_cells(tape_tail, new_cell);
-		tape_tail = new_cell;
+		if (tape_head) link_cells(new_cell, tape_head);
+		tape_head = new_cell;
 	}
 
+	return tape_head;
+
  fail:
-	abort(); // XXX
+	free_tape(tape_head, 0);
+	return 0;
 }
 
 /*
