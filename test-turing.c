@@ -4,6 +4,7 @@
 static void test_cell_alloc();
 static void test_cell_link();
 static void test_cell_traverse();
+static void test_tape_buffer();
 static void test_tape_free();
 
 struct unit_test tests[] = {
@@ -13,8 +14,10 @@ struct unit_test tests[] = {
 	 .fun = unit_list(test_cell_link),},
 	{.msg = "should traverse cells",
 	 .fun = unit_list(test_cell_traverse),},
-	{.msg = "should be able to free tapes",
+	{.msg = "should free tapes",
 	 .fun = unit_list(test_tape_free),},
+	{.msg = "should convert buffers to tapes",
+	 .fun = unit_list(test_tape_buffer),},
 };
 
 #define make_tape(...) _make_tape((cell **[]){__VA_ARGS__, 0});
@@ -80,6 +83,27 @@ test_cell_traverse()
 	try(free(a));
 	try(free(b));
 	try(free(c));
+}
+
+void
+test_tape_buffer()
+{
+	struct walker walker[1];
+	cell *t;
+	int i;
+	int b;
+
+	ok(t = tape_from_buffer("?", 1));
+
+	try(walker_begin(walker, t, 0));
+
+	for (i=0; i<8; ++i) {
+		b = bit_at_index('?', i);
+		expect(b, *t & 1);
+		try(walker_step(walker));
+	}
+
+	ok(walker->next == 0x0);
 }
 
 void
