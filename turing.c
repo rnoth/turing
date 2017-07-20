@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <turing.h>
 
+/*
+ * struct walker is a little bit of abstraction to avoid
+ * duplicating the list walking logic everywhere.
+ */
 struct walker;
 
 cell *cell_from_bit(int b);
@@ -27,7 +31,7 @@ bit_at_index(char byte, int index)
 }
 
 /*
- * cell_from_bit -- return a new cell marked with bit
+ * cell_from_bit -- return a new cell tagged with a bit
  */
 cell *
 cell_from_bit(int b)
@@ -42,6 +46,11 @@ cell_from_bit(int b)
 	return result;
 }
 
+/*
+ * free_subtape -- free all cells after current
+ *
+ * previous is not freed.
+ */
 void
 free_subtape(cell *current, cell *previous)
 {
@@ -65,7 +74,7 @@ free_tape(cell *current, cell *previous)
 }
 
 /*
- * get_next_cell -- return the cell after current via previous
+ * get_next_cell -- return the cell after current
  */
 cell *
 get_next_cell(cell *current, cell *previous)
@@ -94,7 +103,7 @@ link_cells(cell *lef, cell *rit)
 }
 
 /*
- * cell_from_buffer -- read buffer into list of cells
+ * tape_from_buffer -- read buffer onto a tape
  */
 cell *
 tape_from_buffer(char *buffer, size_t length)
@@ -136,7 +145,7 @@ walk_tape(cell *current, cell *previous)
 }
 
 /*
- * walker_begin -- initialize a walker
+ * walker_begin -- initialize walker
  */
 void
 walker_begin(struct walker *walker, cell *current, cell *previous)
@@ -147,7 +156,7 @@ walker_begin(struct walker *walker, cell *current, cell *previous)
 }
 
 /*
- * walker_step -- step walker one link down the tape
+ * walker_step -- step walker one link through the tape
  */
 void
 walker_step(struct walker *walker)
