@@ -88,22 +88,31 @@ test_cell_traverse()
 void
 test_tape_buffer()
 {
-	struct walker walker[1];
+	struct walker w[1];
 	cell *t;
 	int i;
-	int b;
+	uint8_t b;
+	char u=1;
 
-	ok(t = tape_from_buffer("?", 1));
+ again:
+	ok(t = tape_from_buffer(&u, 1));
 
-	try(walker_begin(walker, t, 0));
+	try(walker_begin(w, t, 0));
 
-	for (i=0; i<8; ++i) {
-		b = bit_at_index('?', i);
-		expect(b, *t & 1);
-		try(walker_step(walker));
+	for (i=8; i-->0;) {
+		b = bit_at_index(u, i);
+		t = w->current;
+		okf(b == (*t & 1), "expected %hhu in cell %d, got %lu",
+		    b, i, *t & 1);
+		try(walker_step(w));
 	}
 
-	ok(walker->next == 0x0);
+	ok(w->next == 0x0);
+
+	free_tape(t, 0);
+
+	u <<= 1;
+	if (u) goto again;
 }
 
 void
