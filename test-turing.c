@@ -74,6 +74,9 @@ test_cell_traverse()
 	ok(0 == get_next_cell(a, b));
 	ok(a == get_next_cell(b, c));
 
+	ok(a == walk_tape(c, 0));
+	ok(c == walk_tape(a, 0));
+
 	try(free(a));
 	try(free(b));
 	try(free(c));
