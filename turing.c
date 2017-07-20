@@ -46,7 +46,7 @@ void
 free_subtape(cell *current, cell *previous)
 {
 	struct walker walker[1];
-	
+
 	walker_begin(walker, current, previous);
 
 	while (walker->current) {
@@ -82,6 +82,18 @@ get_next_cell(cell *current, cell *previous)
 }
 
 /*
+ * link_cells -- link two cells
+ *
+ * Never call this function on cells with two links, it will corrupt the list
+ */
+void
+link_cells(cell *lef, cell *rit)
+{
+	*lef ^= (cell)rit;
+	*rit ^= (cell)lef;
+}
+
+/*
  * cell_from_buffer -- read buffer into list of cells
  */
 cell *
@@ -103,18 +115,6 @@ tape_from_buffer(char *buffer, size_t length)
 
  fail:
 	abort(); // XXX
-}
-
-/*
- * link_cells -- link two cells
- *
- * Never call this function on cells with two links, it will corrupt the list
- */
-void
-link_cells(cell *lef, cell *rit)
-{
-	*lef ^= (cell)rit;
-	*rit ^= (cell)lef;
 }
 
 /*
