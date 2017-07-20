@@ -1,10 +1,21 @@
 #include <stdlib.h>
 #include <turing.h>
 
+struct walker;
+
 cell *cell_from_bit(int b);
 void free_tape(cell *current, cell *previous);
 cell *get_next_cell(cell *current, cell *previous);
 void link_cells(cell *lef, cell *rit);
+cell *walk_tape(cell *current, cell *previous);
+void walker_begin(struct walker *walker, cell *current, cell *previous);
+void walker_step(struct walker *walker);
+
+struct walker {
+	cell *previous;
+	cell *current;
+	cell *next;
+};
 
 /*
  * byte_index -- return the bit at index in byte
@@ -31,12 +42,26 @@ cell_from_bit(int b)
 	return result;
 }
 
+void
+free_subtape(cell *current, cell *previous)
+{
+	struct walker walker[1];
+	
+	walker_begin(walker, current, previous);
+
+	while (walker->current) {
+		free(walker->current);
+		walker_step(walker);
+	}
+}
 /*
  * free_tape -- free entire tape, starting from anywhere
  */
 void
 free_tape(cell *current, cell *previous)
 {
+	free_subtape(current, previous);
+	free_subtape(previous, current);
 }
 
 /*
@@ -46,6 +71,8 @@ cell *
 get_next_cell(cell *current, cell *previous)
 {
 	cell result;
+
+	if (!current) return 0;
 
 	result = *current;
 	result &= ~1;
@@ -88,4 +115,41 @@ link_cells(cell *lef, cell *rit)
 {
 	*lef ^= (cell)rit;
 	*rit ^= (cell)lef;
+}
+
+/*
+ * walk_tape -- return the end of the tape
+ */
+cell *
+walk_tape(cell *current, cell *previous)
+{
+	cell *next;
+
+	while (next = get_next_cell(current, previous)) {
+		previous = current;
+		current = next;
+	}
+	return current;
+}
+
+/*
+ * walker_begin -- initialize a walker
+ */
+void
+walker_begin(struct walker *walker, cell *current, cell *previous)
+{
+	walker->current = current;
+	walker->previous = previous;
+	walker->next = get_next_cell(current, previous);
+}
+
+/*
+ * walker_step -- step walker one link down the tape
+ */
+void
+walker_step(struct walker *walker)
+{
+	walker->previous = walker->current;
+	walker->current = walker->next;
+	walker->next = get_next_cell(walker->current, walker->previous);
 }
