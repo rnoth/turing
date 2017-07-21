@@ -66,9 +66,11 @@ copy_tape_into_buffer(char *buffer, size_t length, cell *tape)
 	memset(buffer, 0, length);
 	walker_begin(walker, tape, 0);
 
-	for (i=0; i/8<length; ++i) {
+	i = length * 8;
+	while (i --> 0) {
 		b = *walker->current & 1;
 		buffer[i/8] |= b << i%8;
+		walker_step(walker);
 	}
 }
 
