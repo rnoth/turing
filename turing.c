@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <turing.h>
 
 /*
@@ -44,6 +45,27 @@ cell_from_bit(int b)
 	*result = b;
 
 	return result;
+}
+
+/*
+ * copy_tape_into_buffer -- write the cells of tape into buffer
+ *
+ * tape must be the first or last cell in a tape
+ */
+void
+copy_tape_into_buffer(char *buffer, size_t length, cell *tape)
+{
+	struct walker walker[1];
+	size_t i;
+	int b;
+
+	memset(buffer, 0, length);
+	walker_begin(walker, tape, 0);
+
+	for (i=0; i/8<length; ++i) {
+		b = *walker->current & 1;
+		buffer[i/8] |= b << i%8;
+	}
 }
 
 /*
