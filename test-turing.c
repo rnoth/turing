@@ -133,6 +133,16 @@ test_tape_free()
 void
 test_tape_read()
 {
+	char string[6]="hello";
+	char buffer[6]={0};
+	cell *tape;
+
+	ok(tape = tape_from_buffer(string, strlen(string)));
+	try(copy_tape_into_buffer(buffer, strlen(string), tape));
+
+	okf(!strcmp(buffer, string),
+	    "expected \"%s\", got \"%s\"",
+	    string, buffer);
 }
 
 int
