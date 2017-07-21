@@ -4,10 +4,7 @@
 #include <cell.h>
 
 static int bit_at_index(char byte, int index);
-static cell *cell_from_bit(int b);
 static void free_subtape(cell *current, cell *previous);
-static cell *get_next_cell(cell *current, cell *previous);
-static void link_cells(cell *lef, cell *rit);
 
 /*
  * byte_index -- return the bit at index in byte
