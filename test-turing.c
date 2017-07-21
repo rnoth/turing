@@ -6,6 +6,7 @@ static void test_cell_link();
 static void test_cell_traverse();
 static void test_tape_buffer();
 static void test_tape_free();
+static void test_tape_read();
 
 struct unit_test tests[] = {
 	{.msg = "should allocate cells",
@@ -18,6 +19,8 @@ struct unit_test tests[] = {
 	 .fun = unit_list(test_tape_free),},
 	{.msg = "should convert buffers to tapes",
 	 .fun = unit_list(test_tape_buffer),},
+	{.msg = "should read tapes into buffers",
+	 .fun = unit_list(test_tape_read),},
 };
 
 #define make_tape(...) _make_tape((cell **[]){__VA_ARGS__, 0});
@@ -122,6 +125,11 @@ test_tape_free()
 
 	make_tape(&a, &b, &c);
 	try(free_tape(a, 0));
+}
+
+void
+test_tape_read()
+{
 }
 
 int
