@@ -17,7 +17,7 @@ BIN	:= $(TESTS:.c=)
 $(foreach test,$(TESTS),$(eval $(test:.c=): $(test:.c=.c.o)))
 
 ifndef NDEBUG
-CFLAGS	+= -O0 -ggdb3 -Werror
+CFLAGS	+= -O1 -ggdb3 -Werror
 CFLAGS	+= -Wunreachable-code \
 	   -Wno-missing-field-initializers -Wno-unused-parameter \
 	   -Warray-bounds -Wno-missing-braces -Wno-parentheses
