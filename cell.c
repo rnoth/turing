@@ -3,29 +3,11 @@
 
 #include <cell.h>
 
-/*
- * struct walker is a little bit of abstraction to avoid
- * duplicating the list walking logic everywhere.
- */
-struct walker;
-
-int bit_at_index(char byte, int index);
-cell *cell_from_bit(int b);
-void copy_tape_into_buffer(char *buffer, size_t length, cell *tape);
-void free_subtape(cell *current, cell *previous);
-void free_tape(cell *current, cell *previous);
-cell *get_next_cell(cell *current, cell *previous);
-void link_cells(cell *lef, cell *rit);
-cell *tape_from_buffer(char *buffer, size_t length);
-cell *walk_tape(cell *current, cell *previous);
-void walker_begin(struct walker *walker, cell *current, cell *previous);
-void walker_step(struct walker *walker);
-
-struct walker {
-	cell *previous;
-	cell *current;
-	cell *next;
-};
+static int bit_at_index(char byte, int index);
+static cell *cell_from_bit(int b);
+static void free_subtape(cell *current, cell *previous);
+static cell *get_next_cell(cell *current, cell *previous);
+static void link_cells(cell *lef, cell *rit);
 
 /*
  * byte_index -- return the bit at index in byte
