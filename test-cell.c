@@ -1,5 +1,5 @@
 #include <unit.h>
-#include <turing.c>
+#include <cell.c>
 
 static void test_cell_alloc();
 static void test_cell_link();

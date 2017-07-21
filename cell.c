@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-#include <turing.h>
+
+#include <cell.h>
 
 /*
  * struct walker is a little bit of abstraction to avoid

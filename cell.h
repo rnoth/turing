@@ -9,13 +9,4 @@
  */
 typedef uintptr_t cell;
 
-typedef uint16_t state;
-typedef uint16_t action;
-
-struct turing {
-	cell  *current;
-	cell  *previous;
-	state  state;
-	action trans[];
-};
 #endif
