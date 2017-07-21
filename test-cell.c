@@ -104,7 +104,7 @@ test_tape_buffer()
 
 	try(walker_begin(walker, tape, 0));
 
-	for (i=8; i-->0;) {
+	for (i=0; i<8; ++i) {
 		b = bit_at_index(ch, i);
 		current = walker->current;
 		okf(b == (*current & 1),

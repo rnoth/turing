@@ -7,7 +7,9 @@ static int bit_at_index(char byte, int index);
 static void free_subtape(cell *current, cell *previous);
 
 /*
- * byte_index -- return the bit at index in byte
+ * We assume index is between 0 & 7, and create a bit mask to extract only that
+ * bit from byte. Finally, we double negate it to convert it to 0 or 1, because
+ * our bitmask extracts bits as powers of two.
  */
 int
 bit_at_index(char byte, int index)
@@ -16,10 +18,12 @@ bit_at_index(char byte, int index)
 }
 
 /*
- * cell_from_bit -- return a new cell tagged with a bit
+ * Because a new cell has no links (i.e., they're null), the cell we return is
+ * blank except for the symbol in the cell, 0 or 1. As boolean 'true' is 1,
+ * we can just write it into the cell.
  */
 cell *
-cell_from_bit(int b)
+cell_from_bit(bool b)
 {
 	cell *result;
 
@@ -32,9 +36,10 @@ cell_from_bit(int b)
 }
 
 /*
- * copy_tape_into_buffer -- write the cells of tape into buffer
- *
- * tape must be the first or last cell in a tape
+ * Because it's simplest to iterate over bits in our tape than over bytes in
+ * our buffer, we will write out bits one by one, which requires zeroing the
+ * bytes before we first write to them. We have chosen to do this upfront with
+ * memset rather than having the logic inside the main loop.
  */
 void
 copy_tape_into_buffer(char *buffer, size_t length, cell *tape)
@@ -46,8 +51,7 @@ copy_tape_into_buffer(char *buffer, size_t length, cell *tape)
 	memset(buffer, 0, length);
 	walker_begin(walker, tape, 0);
 
-	i = length * 8;
-	while (i --> 0) {
+	for (i=0; i/8<length; ++i) {
 		b = *walker->current & 1;
 		buffer[i/8] |= b << i%8;
 		walker_step(walker);
@@ -55,9 +59,10 @@ copy_tape_into_buffer(char *buffer, size_t length, cell *tape)
 }
 
 /*
- * free_subtape -- free all cells after current
- *
- * previous is not freed.
+ * Because free_tape() needs to free in both directions, this function handles
+ * freeing in a particular direction. Two pointers specify a direction, and
+ * this function only frees one of them. See free_tape() itself for quick
+ * justification.
  */
 void
 free_subtape(cell *current, cell *previous)
@@ -71,38 +76,34 @@ free_subtape(cell *current, cell *previous)
 		walker_step(walker);
 	}
 }
-/*
- * free_tape -- free entire tape, starting from anywhere
- */
-void
-free_tape(cell *current, cell *previous)
-{
-	free_subtape(current, previous);
-	free_subtape(previous, current);
-}
 
 /*
- * get_next_cell -- return the cell after current
+ * For convenience, this function will free an entire tape, no matter where
+ * the right and left pointers indicate. Because of this, it defers to
+ * free_subtape(), which left & right taking turns as the current & previous
+ * pointers.
  */
+void
+free_tape(cell *left, cell *right)
+{
+	free_subtape(left, right);
+	free_subtape(right, left);
+}
+
 cell *
 get_next_cell(cell *current, cell *previous)
 {
-	cell result;
+	cell temp;
 
 	if (!current) return 0;
 
-	result = *current;
-	result &= ~1;
-	result ^= (cell)previous;
+	temp = *current;
+	temp &= ~1;
+	temp ^= (cell)previous;
 
-	return (cell *)result;
+	return (cell *)temp;
 }
 
-/*
- * link_cells -- link two cells
- *
- * Never call this function on cells with two links, it will corrupt the list
- */
 void
 link_cells(cell *lef, cell *rit)
 {
@@ -111,23 +112,30 @@ link_cells(cell *lef, cell *rit)
 }
 
 /*
- * tape_from_buffer -- read buffer onto a tape
+ * Tapes are stored in little endian fashion. This is also how bytes are
+ * addressed, so i%8 goes from lowest bit to highest, and i/8 goes from
+ * lowest offset to highest. Thus, 'b' becomes every bit from buffer in
+ * order.
  */
 cell *
 tape_from_buffer(char *buffer, size_t length)
 {
 	cell *tape_head=0;
+	cell *tape_tail;
 	cell *new_cell;
 	size_t i;
 	int b;
 
 	for (i=0; i/8<length; ++i) {
 		b = bit_at_index(buffer[i/8], i%8);
+
 		new_cell = cell_from_bit(b);
 		if (!new_cell) goto fail;
 
-		if (tape_head) link_cells(new_cell, tape_head);
-		tape_head = new_cell;
+		if (tape_head) link_cells(tape_tail, new_cell);
+		else tape_head = new_cell;
+
+		tape_tail = new_cell;
 	}
 
 	return tape_head;
@@ -137,9 +145,7 @@ tape_from_buffer(char *buffer, size_t length)
 	return 0;
 }
 
-/*
- * walk_tape -- return the end of the tape
- */
+/* TODO: use a walker here */
 cell *
 walk_tape(cell *current, cell *previous)
 {
@@ -152,9 +158,6 @@ walk_tape(cell *current, cell *previous)
 	return current;
 }
 
-/*
- * walker_begin -- initialize walker
- */
 void
 walker_begin(struct walker *walker, cell *current, cell *previous)
 {
@@ -163,9 +166,6 @@ walker_begin(struct walker *walker, cell *current, cell *previous)
 	walker->next = get_next_cell(current, previous);
 }
 
-/*
- * walker_step -- step walker one link through the tape
- */
 void
 walker_step(struct walker *walker)
 {
