@@ -2,52 +2,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <cell.h>
 #include <turing.h>
 
+/* execute_op - execute a single intruction
+ * execute_op calls shift_tape, and thus can fail when out of memory */
 static int execute_op(struct turing *tm, enum instr op);
-static void init_delta(action delta[][2], size_t nstates);
-static int init_tape(cell **);
+/* shift_tape - moves current into previous, and the next state into current
+ * This function will allocate a new cell if necessary. ENOMEM is returned
+ * if the allocation fails */
 static int shift_tape(cell **current, cell **previous);
 
 int
 execute_op(struct turing *tm, enum instr op)
 {
-	if (op & invert) *tm->tape[0] ^= !(*tm->tape[0] & 1);
+	if ((op & 1) == invert) *tm->left ^= !(*tm->left & 1);
 
-	if (op & shiftr) {
-		return shift_tape(tm->tape, tm->tape +1);
+	if ((op & 2) == shiftl) {
+		return shift_tape(&tm->left, &tm->right);
 	} else {
-		return shift_tape(tm->tape + 1, tm->tape);
+		return shift_tape(&tm->right, &tm->left);
 	}
-}
-
-void
-init_delta(action delta[][2], size_t nstates)
-{
-	size_t i;
-	for (i=0; i<nstates; ++i) {
-		delta[i][0] = arrow(halt, shiftl, ignore);
-		delta[i][1] = arrow(halt, shiftl, ignore);
-	}
-}
-
-int
-init_tape(cell **tape)
-{
-	tape[0] = cell_from_bit(0);
-	if (!tape[0]) return ENOMEM;
-
-	tape[1] = cell_from_bit(0);
-	if (!tape[1]) {
-		free(tape[0]);
-		return ENOMEM;
-	}
-
-	link_cells(tape[0], tape[1]);
-
-	return 0;
 }
 
 int
@@ -77,24 +54,30 @@ struct turing *
 tm_create(size_t nstates)
 {
 	struct turing *tm;
-	size_t mem;
-	int err;
+	size_t delta_size;
 
 	if (!nstates) return 0;
 
-	mem = sizeof *tm + nstates * sizeof tm->delta[0];
-	tm = calloc(mem, 1);
+	delta_size = sizeof tm->delta[0] * nstates;
+	tm = calloc(sizeof *tm + delta_size, 1);
 	if (!tm) return 0;
 
-	err = init_tape(tm->tape);
-	if (err) goto fail;
+	tm->left = cell_from_bit(0);
+	if (!tm->left) goto fail;
+	tm->right = cell_from_bit(0);
+	if (!tm->right) goto fail;
 
-	init_delta(tm->delta, nstates);
+	link_cells(tm->left, tm->right);
+
+	memset(tm->delta, 0xff, delta_size);
+
+	tm->state = 0;
 
 	return tm;
 
  fail:
-	free_tape(tm->tape[0], tm->tape[1]);
+	free(tm->left);
+	free(tm->right);
 	free(tm);
 
 	return 0;
@@ -103,7 +86,8 @@ tm_create(size_t nstates)
 void
 tm_destroy(struct turing *tm)
 {
-	free_tape(tm->tape[0], tm->tape[1]);
+	if (!tm) return;
+	free_tape(tm->left, tm->right);
 	free(tm);
 }
 
@@ -116,7 +100,7 @@ tm_execute(struct turing *tm)
 	if (tm->state == halt) return -1;
 
 	while (tm->state != halt) {
-		err = tm_step(tm);
+		err = tm_single_step(tm);
 		if (err) return err;
 	}
 
@@ -126,14 +110,18 @@ tm_execute(struct turing *tm)
 void
 tm_read_symbols(struct turing *tm, void *buffer, size_t length)
 {
-	cell *start;
+	cell *tape_start;
 
-	start = walk_tape(tm->tape[0], tm->tape[1]);
-	copy_tape_into_buffer(buffer, length, start);
+	if (!tm) return;
+	if (!buffer) return;
+	if (!length) return;
+
+	tape_start = walk_tape(tm->left, tm->right);
+	copy_tape_into_buffer(buffer, length, tape_start);
 }
 
 int
-tm_step(struct turing *tm)
+tm_single_step(struct turing *tm)
 {
 	enum instr op;
 	action act;
@@ -144,7 +132,7 @@ tm_step(struct turing *tm)
 	if (!tm) return EFAULT;
 	if (tm->state == halt) return -1;
 
-	b = *tm->tape[0] & 1;
+	b = *tm->left & 1;
 	act = tm->delta[tm->state][b];
 
 	op = act & 3;

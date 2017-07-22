@@ -16,8 +16,8 @@
  * right is 1.
  */
 enum instr {
-	ignore = 0, // 00
-	invert = 1, // 01
+	invert = 0, // 00
+	ignore = 1, // 01
 	shiftl = 0, // 00
 	shiftr = 2, // 10
 };
@@ -47,8 +47,8 @@ struct turing *tm_create(size_t nstates);
 void tm_destroy(struct turing *tm);
 /* tm_read_symbols - read the tape of tm into a buffer */
 void tm_read_symbols(struct turing *tm, void *buffer, size_t length);
-/* tm_step - execute one state transition on tm */
-int tm_step(struct turing *tm);
+/* tm_single_step - execute one state transition on tm */
+int tm_single_step(struct turing *tm);
 /* tm_execute - execute tm's program until it halts */
 int tm_execute(struct turing *tm);
 
@@ -67,7 +67,8 @@ static inline action arrow(state state, enum instr shift, enum instr write);
  * symbol in the current cell.
  */
 struct turing {
-	cell *tape[2];
+	cell *left;
+	cell *right;
 	state state;
 	action delta[][2];
 };
