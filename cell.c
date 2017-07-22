@@ -81,7 +81,7 @@ free_subtape(cell *current, cell *previous)
 /*
  * For convenience, this function will free an entire tape, no matter where
  * the right and left pointers indicate. Because of this, it defers to
- * free_subtape(), which left & right taking turns as the current & previous
+ * free_subtape(), with left & right taking turns as the current & previous
  * pointers.
  */
 void
