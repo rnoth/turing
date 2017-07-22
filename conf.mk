@@ -12,9 +12,10 @@ SRC	:= $(wildcard *.c)
 OBJ	:= $(SRC:.c=.c.o)
 DEP	:= $(wildcard *.d)
 TESTS	:= $(wildcard test-*.c)
-BIN	:= $(TESTS:.c=)
+BIN	:= tmc $(TESTS:.c=)
 
 $(foreach test,$(TESTS),$(eval $(test:.c=): $(test:.c=.c.o)))
+tmc: tmc.c.o
 
 ifndef NDEBUG
 CFLAGS	+= -O1 -ggdb3 -Werror
