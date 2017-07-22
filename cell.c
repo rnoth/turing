@@ -55,6 +55,7 @@ copy_tape_into_buffer(char *buffer, size_t length, cell *tape)
 		b = *walker->current & 1;
 		buffer[i/8] |= b << i%8;
 		walker_step(walker);
+		if (!walker->current) return;
 	}
 }
 
