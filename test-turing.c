@@ -82,11 +82,11 @@ test_trivial()
 
 	tm = tm_create(1);
 
-	ok(!tm_step(tm));
+	ok(!tm_single_step(tm));
 	okf(tm->state == halt,
 	    "expected machine to be in state 0x%x, instead of 0x%hx",
 	    halt, tm->state);
-	ok(tm_step(tm) == -1);
+	ok(tm_single_step(tm) == -1);
 
 	try(tm_destroy(tm));
 }
