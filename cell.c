@@ -105,6 +105,10 @@ get_next_cell(cell *current, cell *previous)
 	return (cell *)temp;
 }
 
+/*
+ * The number of links in a cell is indistinguishable, so it is up
+ * to the caller to ensure lef & rit only have one.
+ */
 void
 link_cells(cell *lef, cell *rit)
 {
