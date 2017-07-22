@@ -1,5 +1,8 @@
 #ifndef _turing_
 #define _turing_
+#include <stddef.h>
+#include <stdint.h>
+#include <cell.h>
 
 /*
  * Instructions are a bitmask.
@@ -28,8 +31,9 @@ enum instr {
 enum halt {
 	halt = 0x3fff,
 };
+
 /*
- * A state is an index into tm->trans.
+ * a state is an index into tm->trans.
  * An action is a state, left-shifted twice. The low 2 bits are an instruction.
  */
 typedef uint16_t action;
