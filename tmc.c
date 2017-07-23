@@ -9,13 +9,16 @@
 
 #include <turing.h>
 
-static void run(char **argv);
+#include <tmc-parse.h>
 
-void
+static int run(char **argv);
+
+int
 run(char **argv)
 {
+	struct parse ir[1]={0};
 	char *fn = *argv;
-	char *map;
+	uint8_t *map;
 	off_t len;
 	int fd;
 
@@ -27,8 +30,18 @@ run(char **argv)
 	
 	map = mmap(0x0, len, PROT_READ, MAP_PRIVATE, fd, 0);
 
+	parse(ir, map, len);
+
+	if (ir->error) {
+		fprintf(stderr, "%s", ir->message);
+		goto finally;
+	}
+
+ finally:
 	munmap(map, len);
 	close(fd);
+
+	return ir->error;
 }
 
 void
@@ -42,5 +55,5 @@ main(int argc, char **argv)
 {
 	if (argc < 2) usage(), exit(EX_USAGE);
 
-	run(argv+1);
+	return run(argv+1);
 }
