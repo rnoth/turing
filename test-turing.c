@@ -8,13 +8,13 @@ void test_shift();
 void test_trivial();
 
 struct unit_test tests[] = {
-	{.msg = "should alloc & free turing machines",
+	{.msg = "allocating & freeing turing machines",
 	 .fun = unit_list(test_alloc),},
-	{.msg = "should shift tape properly",
+	{.msg = "shifting the tape",
 	 .fun = unit_list(test_shift),},
-	{.msg = "should execute a trivial turing machine",
+	{.msg = "executing a trivial turing machine",
 	 .fun = unit_list(test_trivial),},
-	{.msg = "should extend the tape as needed",
+	{.msg = "extending the tape as needed",
 	 .fun = unit_list(test_extend),},
 };
 
