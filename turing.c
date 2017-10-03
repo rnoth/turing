@@ -18,7 +18,7 @@ static int execute_op(struct turing *tm, enum instr op);
  *
  * After calling this function, *current points to the next cell
  * relative to previous.
- * 
+ *
  * Note that by calling this function with .tape[0] and .tape[1] in
  * different orders is sufficient to move in different directions.
  * See cell.h for details.
