@@ -92,8 +92,7 @@ static inline action arrow(state state, enum instr shift, enum instr write);
  * action is callled the transition.
  */
 struct turing {
-	cell *left;
-	cell *right;
+	cell *tape[2];
 	state state;
 	action delta[][2];
 };
