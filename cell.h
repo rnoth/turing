@@ -42,6 +42,11 @@ typedef uintptr_t cell;
  */
 struct walker;
 
+/* bit_of_cell: read the bit of the given cell */
+static inline int bit_of_cell(cell *cell);
+/* invert_cell_bit: flip the bit inside the given cell */
+static inline void invert_cell_bit(cell *cell);
+
 /* cell_from_bit - return a new cell tagged with a 'bit' */
 cell *cell_from_bit(bool bit);
 /* copy_tape_into_buffer - copy symbols of tape to a buffer 'length' bytes long
@@ -68,5 +73,17 @@ struct walker {
 	cell *current;
 	cell *next;
 };
+
+int
+bit_of_cell(cell *cell)
+{
+	return *cell & 1;
+}
+
+void
+invert_cell_bit(cell *cell)
+{
+	*cell ^= 1;
+}
 
 #endif
