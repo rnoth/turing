@@ -7,12 +7,26 @@
 #include <cell.h>
 #include <turing.h>
 
-/* execute_op - execute a single intruction
- * execute_op calls shift_tape, and thus can fail when out of memory */
+/* execute_op: execute a single intruction
+ *
+ * We call shift_tape here, which can allocate memory.  So this
+ * function can sometimes fail when out of memory.
+ */
 static int execute_op(struct turing *tm, enum instr op);
-/* shift_tape - moves current into previous, and the next state into current
- * This function will allocate a new cell if necessary. ENOMEM is returned
- * if the allocation fails */
+
+/* shift_tape: store the pointer to the next cell in current
+ *
+ * After calling this function, *current points to the next cell
+ * relative to previous.
+ * 
+ * Note that by calling this function with .tape[0] and .tape[1] in
+ * different orders is sufficient to move in different directions.
+ * See cell.h for details.
+ *
+ * This function will try to allocate a new cell if we reach either
+ * end of the tape. The error code ENOMEM is returned if this
+ * allocation fails
+ */
 static int shift_tape(cell **current, cell **previous);
 
 int
@@ -110,14 +124,18 @@ tm_execute(struct turing *tm)
 void
 tm_read_symbols(struct turing *tm, void *buffer, size_t length)
 {
-	cell *tape_start;
+	cell *init_cell;
 
-	if (!tm) return;
 	if (!buffer) return;
 	if (!length) return;
 
-	tape_start = walk_tape(tm->left, tm->right);
-	copy_tape_into_buffer(buffer, length, tape_start);
+	if (!tm) {
+		memset(buffer, 0, length);
+		return;
+	}
+
+	init_cell = walk_tape(tm->left, tm->right);
+	copy_tape_into_buffer(buffer, length, init_cell);
 }
 
 int
