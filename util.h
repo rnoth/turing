@@ -47,7 +47,7 @@ lshift(ulong *lef, ulong *mid, ulong rit)
 
 static inline
 void
-lshift_ptr(void *lefp, void *midp, void *rit)
+ptrshift(void *lefp, void *midp, void *rit)
 {
 	*(void **)lefp = *(void **)midp;
 	*(void **)midp = rit;

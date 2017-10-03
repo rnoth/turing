@@ -53,26 +53,24 @@ test_extend()
 void
 test_shift()
 {
-	cell *a, *b;
+	cell *a, *b, *c;
 
 	a = cell_from_bit(0), b = cell_from_bit(1);
 
 	link_cells(a, b);
 
-	ok(!shift_tape(&a, &b));
+	ok(c = shift_tape(b, a));
 
-	ok(!(*b & 1));
-	ok(!(*a & 1));
+	ok(!bit_of_cell(c));
+	ok( bit_of_cell(b));
+	ok(!bit_of_cell(a));
 
-	ok(*get_next_cell(b, a) & 1);
+	ok(get_next_cell(b, a) == c);
+	ok(get_next_cell(a, b) == 0);
 
-	ok(!shift_tape(&b, &a));
-
-	ok(*b & 1);
-	ok(!(*a & 1));
+	ok(shift_tape(b, a) == c);
 
 	try(free_tape(a, b));
-		
 }
 
 void

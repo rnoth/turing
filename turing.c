@@ -6,6 +6,7 @@
 
 #include <cell.h>
 #include <turing.h>
+#include <util.h>
 
 /* execute_op: execute a single intruction
  *
@@ -27,40 +28,37 @@ static int execute_op(struct turing *tm, enum instr op);
  * end of the tape. The error code ENOMEM is returned if this
  * allocation fails
  */
-static int shift_tape(cell **current, cell **previous);
+static cell *shift_tape(cell *current, cell *previous);
 
 int
-execute_op(struct turing *tm, enum instr op)
+execute_op(struct turing *m, enum instr o)
 {
+	cell *x;
 	int b;
 
-	if ((op & 1) == invert) *tm->tape[0] ^= 1;
+	if ((o & 1) == invert) invert_cell_bit(m->tape[0]);
 
-	b = (op & 2) == shiftl;
-	return shift_tape(tm->tape + !b, tm->tape + b);
-}
-
-int
-shift_tape(cell **current, cell **previous)
-{
-	cell *next;
-
-	next = get_next_cell(*current, *previous);
-	if (next) {
-		*previous = *current;
-		*current = next;
-		return 0;
-	}
-
-	next = cell_from_bit(0);
-	if (!next) return ENOMEM;
-
-	link_cells(next, *current);
-
-	*previous = *current;
-	*current = next;
+	b = (o & 2) == shiftr;
+	x = shift_tape(m->tape[b], m->tape[!b]);
+	if (!x) return ENOMEM;
+	ptrshift(m->tape + !b, m->tape + b, x);
 
 	return 0;
+}
+
+cell *
+shift_tape(cell *current_cell, cell *previous_cell)
+{
+	cell *next_cell;
+
+	next_cell = get_next_cell(current_cell, previous_cell);
+	if (next_cell) return next_cell;
+
+	next_cell = cell_from_bit(0);
+	if (!next_cell) return 0x0;
+
+	link_cells(next_cell, current_cell);
+	return next_cell;
 }
 
 struct turing *
@@ -76,21 +74,17 @@ tm_create(size_t nstates)
 	if (!tm) return 0;
 
 	tm->tape[0] = cell_from_bit(0);
-	if (!tm->tape[0]) goto fail;
 	tm->tape[1] = cell_from_bit(0);
-	if (!tm->tape[1]) goto fail;
-
+	if (!tm->tape[0] || !tm->tape[0]) goto fail;
 	link_cells(tm->tape[0], tm->tape[1]);
 
 	memset(tm->delta, 0xff, delta_size);
-
 	tm->state = 0;
 
 	return tm;
 
  fail:
-	free(tm->tape[0]);
-	free(tm->tape[1]);
+	free(tm->tape[0]), free(tm->tape[1]);
 	free(tm);
 
 	return 0;
