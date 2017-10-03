@@ -9,6 +9,7 @@ struct parse {
 	int error;
 	char message[256];
 	struct syntax *state_list;
+	struct syntax *last_state;
 };
 
 void parse(struct parse *result, uint8_t *buffer, size_t length);
