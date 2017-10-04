@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <str.h>
+
 #include <tmc-parse.h>
 #include <tmc-state.h>
 
@@ -33,58 +35,8 @@ struct token {
 	uint8_t *value;
 	size_t length;
 };
-
-/* eat_ident - get the offset of the last character in an identifier */
-static size_t eat_ident(uint8_t *buffer, size_t length);
-/* eat_spaces - get the offset of the first non-space, non-comment character */
-static size_t eat_spaces(uint8_t *buffer, size_t length);
 /* lex - store the next token from buffer in token */
 static size_t lex(struct token *token, uint8_t *buffer, size_t length);
-
-size_t
-eat_ident(uint8_t *buffer, size_t length)
-{
-	size_t offset=0;
-	uint8_t *comment;
-
-	if (!length) return 0;
-
-	comment = memchr(buffer, '#', length);
-	if (comment) length = comment - buffer;
-
-	while (!isspace(buffer[offset])) {
-		if (++offset >= length) {
-			return offset;
-		}
-	}
-
-	return offset;
-}
-
-size_t
-eat_spaces(uint8_t *buffer, size_t length)
-{
-	size_t offset=0;
-	uint8_t *nl;
-
-	if (!length) return 0;
-
- again:
-	while (isspace(buffer[offset])) {
-		if (++offset >= length) {
-			return offset;
-		}
-	}
-
-	if (buffer[offset] == '#') {
-		nl = memchr(buffer+offset, '\n', length);
-		if (!nl) return length;
-		offset = nl - buffer;
-		goto again;
-	}
-
-	return offset;
-}
 
 size_t
 lex(struct token *token, uint8_t *buffer, size_t length)
@@ -109,7 +61,7 @@ lex(struct token *token, uint8_t *buffer, size_t length)
 		return offset;
 	}
 
-	token->value = buffer;
+	token->value = buffer + offset;
 
 	token->type = table[buffer[offset]];
 	if (token->type) {
@@ -119,7 +71,7 @@ lex(struct token *token, uint8_t *buffer, size_t length)
 
 	token->type = tok_name;
 	offset += token->length = eat_ident(buffer, length);
-	return offset+1;
+	return offset;
 }
 	
 void
