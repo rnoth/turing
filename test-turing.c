@@ -18,6 +18,8 @@ struct unit_test tests[] = {
 	 .fun = unit_list(test_extend),},
 };
 
+#include <unit.t>
+
 void
 test_alloc()
 {
@@ -87,11 +89,4 @@ test_trivial()
 	ok(tm_single_step(tm) == -1);
 
 	try(tm_destroy(tm));
-}
-
-int
-main(int argc, char **argv)
-{
-	unit_parse_args(argv);
-	return unit_run_tests(tests, sizeof tests/sizeof *tests);
 }

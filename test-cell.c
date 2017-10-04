@@ -23,6 +23,8 @@ struct unit_test tests[] = {
 	 .fun = unit_list(test_tape_read),},
 };
 
+#include <unit.t>
+
 #define make_tape(...) _make_tape((cell **[]){__VA_ARGS__, 0});
 void
 _make_tape(cell ***cells) 
@@ -143,11 +145,4 @@ test_tape_read()
 	okf(!strcmp(buffer, string),
 	    "expected \"%s\", got \"%s\"",
 	    string, buffer);
-}
-
-int
-main(int argc, char **argv)
-{
-	unit_parse_args(argv);
-	return unit_run_tests(tests, sizeof tests/sizeof *tests);
 }
