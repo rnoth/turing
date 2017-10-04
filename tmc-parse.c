@@ -118,7 +118,7 @@ lex(struct token *token, uint8_t *buffer, size_t length)
 	}
 
 	token->type = tok_name;
-	token->length = offset += eat_ident(buffer, length);
+	offset += token->length = eat_ident(buffer, length);
 	return offset+1;
 }
 	
