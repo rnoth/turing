@@ -35,6 +35,7 @@ struct token {
 	uint8_t *value;
 	size_t length;
 };
+
 /* lex - store the next token from buffer in token */
 static size_t lex(struct token *token, uint8_t *buffer, size_t length);
 
