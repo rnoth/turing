@@ -32,7 +32,6 @@ run(char **argv)
 	parse(ir, map, len);
 
 	if (ir->error) {
-		fprintf(stderr, "%s", ir->message);
 		goto finally;
 	}
 

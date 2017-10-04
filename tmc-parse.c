@@ -1,12 +1,13 @@
 #include <ctype.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <str.h>
 
+#include <tmc.h>
 #include <tmc-parse.h>
-#include <tmc-state.h>
 
 enum id {
 	tok_null,
