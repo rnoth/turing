@@ -62,7 +62,9 @@ lex(struct token *token, uint8_t *buffer, size_t length)
 		return extent;
 	}
 
-	token->value = buffer + extent;
+	buffer += extent, length -= extent;
+
+	token->value = buffer;
 
 	token->type = table[buffer[extent]];
 	if (token->type) {
