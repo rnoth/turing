@@ -78,7 +78,7 @@ test_lex_id(void)
 	struct token token[1];
 	char *foo="foo";
 
-	try(lex_str(token, foo));
+	expect(3, lex_str(token, foo));
 	//ok(token->type == tok_name);
 	ok_token_is_type(token, tok_name);
 	ok_token_has_value(token, foo);
@@ -91,8 +91,8 @@ test_lex_id_space(void)
 	struct token token[1];
 	char *bar="   bar";
 
-	try(lex_str(token, bar));
-	ok(token->type == tok_name);
+	expect(6, lex_str(token, bar));
+	ok_token_is_type(token, tok_name);
 	ok_token_has_value(token, bar + 3);
 	expect(3, token->length);
 }
