@@ -51,28 +51,28 @@ lex(struct token *token, uint8_t *buffer, size_t length)
 		['^'] = tok_invert,
 		['_'] = tok_ignore,
 	};
-	size_t offset;
+	size_t extent;
 
 	*token = (struct token){0};
 
-	offset = eat_spaces(buffer, length);
+	extent = eat_spaces(buffer, length);
 
-	if (offset == length) {
+	if (extent == length) {
 		token->type = tok_eof;
-		return offset;
+		return extent;
 	}
 
-	token->value = buffer + offset;
+	token->value = buffer + extent;
 
-	token->type = table[buffer[offset]];
+	token->type = table[buffer[extent]];
 	if (token->type) {
 		token->length = 1;
-		return offset+1;
+		return extent + 1;
 	}
 
 	token->type = tok_name;
-	offset += token->length = eat_ident(buffer, length);
-	return offset;
+	extent += token->length = eat_ident(buffer, length);
+	return extent;
 }
 	
 void
