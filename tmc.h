@@ -1,5 +1,5 @@
-#ifndef _tmc_state_
-#define _tmc_state_
+#ifndef _tmc_
+#define _tmc_
 
 #include <stddef.h>
 
