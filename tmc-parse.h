@@ -4,12 +4,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define msg_len 256
+struct parse;
+struct syntax;
+
 struct parse {
 	int error;
-	char message[256];
-	struct syntax *state_list;
-	struct syntax *last_state;
+	size_t line;
+	size_t byte;
+	struct state *list;
 };
 
 void parse(struct parse *result, uint8_t *buffer, size_t length);
