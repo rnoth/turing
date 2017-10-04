@@ -8,7 +8,6 @@
 #include <unistd.h>
 
 #include <turing.h>
-
 #include <tmc-parse.h>
 
 static int run(char **argv);
